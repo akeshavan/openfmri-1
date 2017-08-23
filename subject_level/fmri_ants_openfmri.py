@@ -15,7 +15,8 @@ This script demonstrates how to use nipype to analyze a data set::
 from nipype import config
 config.enable_provenance()
 
-from nipype.external import six
+#from nipype.external import six
+import six
 
 from glob import glob
 import os
@@ -457,7 +458,7 @@ def create_fs_reg_workflow(name='registration'):
 
     merge = Node(Merge(2), iterfield=['in2'], name='mergexfm')
     register.connect(convert2itk, 'itk_transform', merge, 'in2')
-    register.connect(reg, ('composite_transform', pickfirst), merge, 'in1')
+    register.connect(reg, 'composite_transform', merge, 'in1')
 
 
     """
@@ -778,14 +779,15 @@ def analyze_openfmri_dataset(data_dir, subject=None, model_id=None,
     modelspec.inputs.input_units = 'secs'
 
     def check_behav_list(behav, run_id, conds):
-        from nipype.external import six
+        #from nipype.external import six
+        import six
         import numpy as np
         num_conds = len(conds)
         if isinstance(behav, six.string_types):
             behav = [behav]
         behav_array = np.array(behav).flatten()
         num_elements = behav_array.shape[0]
-        return behav_array.reshape(num_elements/num_conds, num_conds).tolist()
+        return behav_array.reshape(int(num_elements/num_conds), num_conds).tolist()
 
     reshape_behav = pe.Node(niu.Function(input_names=['behav', 'run_id', 'conds'],
                                        output_names=['behav'],
